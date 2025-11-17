@@ -41,7 +41,7 @@ Riferimento usato: https://portswigger.net/support/using-sql-injection-to-bypass
 
 
 Tra le recensioni dei prodotti è possibile trovare la e-mail dell'amministratore. Utilizzandola nel portale login e inserendo il payload `admin@juice-sh.op' --'` e una qualsiasi password è possibile accedere al suo account. Un altro payload che può essere utilizzato è `' or true --'`.
-- [ ] Usare il password hash dalla risposta login per accedere
+- [x] Usare il password hash dalla risposta login per accedere
 
 ## Login Bender
 
