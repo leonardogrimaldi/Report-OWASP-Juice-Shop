@@ -61,6 +61,10 @@ Andando sul proprio account si può visualizzare il carrello. Su DevTools, si ve
 
 Accedendo come amministratore facendo una SQL injection e analizzando il codice per trovare pagine nascoste, è stato possibile accedere a `/administration`
 
+## Forged Feedback
+
+Lasciando una recensione sul portale `/contact` si può visualizzare il funzionamento dell'api `/api/Feedbacks` con ZAP. In POST viene inviato il seguente JSON `{"UserId":23,"captchaId":7,"captcha":"49","comment":"12345 (***ting@gmail.com)","rating":3}`. Creando una richiesta con un UserId arbitrario si può inviare una recensione a nome di un altro utente. Inoltre, non vi è nessuna verifica sul autore della recensione che si vede nel commento, quindi è possibile creare uno scollegamento tra l'autore nel commento e l'userID
+
 # Broken Anti Automation
 
 ## CAPTCHA Bypass
@@ -73,3 +77,8 @@ Sulla pagina Customer Feedback vediamo un CAPTCHA abbastanza semplice. Facendo u
 
 Raccogliendo informazioni su Bender dalle recensioni oppure dal data export ho scoperto che il suo nome è un riferimento a Bender di Futurma. Procedendo su 'Forgot Password' è possibile rispondere alla domanda di sicurezza con `Stop'n'Drop`, che consente il cambio della password.
 
+# Security Misconfiguration
+
+## Deprecated Interface
+
+Cercando nel codice `main.js` ho trovato che l'interfaccia `/file-upload` accetta diversi tipi di estensioni, mentre nel frontend non è così (solo `.pdf` e `zip`). Questa interfaccia appartiene alla pagina `/complain` alla quale ho aggiunto un payload modificato chiamato `test.xml.zip`. Inviando il reclamo, ho intercettato e modificato la richiesta, eliminando la parte `.zip` ed effettivamente inviando `test.xml`, utilizzando l'interfaccia deprecata.
