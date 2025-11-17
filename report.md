@@ -15,6 +15,10 @@ Un utente malizioso potrebbe inviare un link contenente la query di ricerca con 
 
 Ho cercato sul sito delle pagine che nell'URL prendono un parametro. La pagina di tracking ha un parametro ?id= sul quale si può eseguire un attacco XSS passando il payload ```<iframe src="javascript:alert(`xss`)">```.
 
+## API-Only XSS
+
+Questa challenge richiedeva una attenta analisi degli endpoint API e l'utilizzo di strumenti esterni come Postman per fare richieste specifiche. Inviando una richiesta PUT su `/api/Products/1` otteniamo una risposta di successo, indicando che è possibile modificare il prodotto senza averne i permessi (*Broken Authorization*)! Ho quindi modificato la descrizione del prodotto, passando il payload ```<iframe src="javascript:alert(`xss`)">```, eseguendo quindi un attacco persistente XSS. 
+
 # Sensitive Data Exposure
 
 ## NFT Takeover
@@ -42,6 +46,10 @@ Tra le recensioni dei prodotti è possibile trovare la e-mail dell'amministrator
 ## Login Bender
 
 Similmente all'admin, è possibile accedere all'account di un altro (o qualsiasi) utente del sito, sapendo la sua e-mail. Tra le recensioni dei prodotti possiamo trovare l'email di Bender `bender@juice-sh.op` sulla quale faremo un attacco nella pagina login. Provando alcuni payload di e-mail e le risposte di errore, vediamo che il codice SQL fa una query `SELECT * FROM Users WHERE email = ''bender@juice-sh.op' AND password = '..' AND ...`. Si può quindi passare il payload `bender@juice-sh.op' --` per far ignorare le condizioni posteriori e selezionare l'utente. Passando un qualsiasi valore di password, si ha accesso all'account.
+
+## Database Schema
+
+Questa è stata una challenge un po' più difficile. Ho provato a ottenere lo schema dalla pagina login, ma non ho avuto successo. Mi sono spostato sulla barra di ricerca. Con ZAP ho tenuto traccia delle richieste quando si fa una ricerca e ho visto una chiamata a `/rest/products/search?q=`. Formando alcuni payload ho scoperto la tecnologia SQL che il server utilizza. Dopodiché ho cercato su internet come ottenere gli schema e ho inviato la richiesta. Ho dovuto infine formare la query con UNION per ottenere una risposta. Per far funzionare il comando, ho dovuto far combaciare il numero di colonne della query di ricerca con quello della union. Il payload finale è stato: `test')) UNION SELECT sql,2,3,4,5,6,7,8,9 FROM sqlite_master--`
 
 # Broken Access Control
 
