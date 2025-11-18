@@ -19,6 +19,15 @@ Ho cercato sul sito delle pagine che nell'URL prendono un parametro. La pagina d
 
 Questa challenge richiedeva una attenta analisi degli endpoint API e l'utilizzo di strumenti esterni come Postman per fare richieste specifiche. Inviando una richiesta PUT su `/api/Products/1` otteniamo una risposta di successo, indicando che è possibile modificare il prodotto senza averne i permessi (*Broken Authorization*)! Ho quindi modificato la descrizione del prodotto, passando il payload ```<iframe src="javascript:alert(`xss`)">```, eseguendo quindi un attacco persistente XSS. 
 
+## CSP Bypass
+https://www.giac.org/paper/gwapt/8252/content-security-policy-bypass-exploiting-misconfigurations/171869
+
+Per questa challenge occorre attaccare la pagina `/profile`. Inviare un semplice payload XSS dentro il campo username non basta: viene filtrato e la pagina ha una regola Content Security Policy (CSP). Il metodo per ovviarla è cambiare formare un payload nell'url dell imagine, aggiungendo le regole che vogliamo. Dopodiché si invia un payload XSS nell'username che evita i filtri per far funzionare lo script.
+
+https://www.youtube.com/watch?v=oyDa862JKqI
+
+```<<script><<<sscript>alert(xss)</script>```
+
 # Sensitive Data Exposure
 
 ## NFT Takeover
@@ -64,6 +73,10 @@ Accedendo come amministratore facendo una SQL injection e analizzando il codice 
 ## Forged Feedback
 
 Lasciando una recensione sul portale `/contact` si può visualizzare il funzionamento dell'api `/api/Feedbacks` con ZAP. In POST viene inviato il seguente JSON `{"UserId":23,"captchaId":7,"captcha":"49","comment":"12345 (***ting@gmail.com)","rating":3}`. Creando una richiesta con un UserId arbitrario si può inviare una recensione a nome di un altro utente. Inoltre, non vi è nessuna verifica sul autore della recensione che si vede nel commento, quindi è possibile creare uno scollegamento tra l'autore nel commento e l'userID
+
+## Product Tampering
+
+La challenge dice di modificare il `href` del prodotto 'OWASP SSL Advanced Forensic Tool (O-Saft)'. Sapendo che le operazioni di PUT non sono state bloccate per altre vulnerabilità, ho deciso di provare queste. Per prima cosa ho intercettato il formato JSON della risposta del prodotto e ho modificato l'attributo `href` secondo le indicazioni per la challenge. Poi ho cercato l'API dei prodotti: prima ho provato con `/Products/9` e poi con `/api/Products/9`. Sull'ultimo ho inviato richiesta PUT con Postman e sono riuscito a aggiornare la descrizione del prodotto.
 
 # Broken Anti Automation
 
