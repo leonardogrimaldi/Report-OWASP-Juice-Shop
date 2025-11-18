@@ -82,3 +82,34 @@ Raccogliendo informazioni su Bender dalle recensioni oppure dal data export ho s
 ## Deprecated Interface
 
 Cercando nel codice `main.js` ho trovato che l'interfaccia `/file-upload` accetta diversi tipi di estensioni, mentre nel frontend non è così (solo `.pdf` e `zip`). Questa interfaccia appartiene alla pagina `/complain` alla quale ho aggiunto un payload modificato chiamato `test.xml.zip`. Inviando il reclamo, ho intercettato e modificato la richiesta, eliminando la parte `.zip` ed effettivamente inviando `test.xml`, utilizzando l'interfaccia deprecata.
+
+# XXE
+
+## XXE Data Access
+
+Per questa challenge ho dovuto utilizzare l'interfaccia deprecata di `/complain` e inviare un payload XML
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE replace [<!ENTITY ent SYSTEM "C:\Windows\system.ini"> ]>
+<complaint>
+ <message>&ent;</message>
+ <author>test</author>
+</complaint>
+```
+Inviandolo però, non ho ricevuto la risposta attesa e riscontravo un errore di parsing o unexpected end of form forse dovuto ai permessi di Windows o misure di sicurezza Juice Shop.
+
+# Improper Input Validation
+
+## Upload Type
+
+La pagina di interesse è `/complain`.  
+
+## Deluxe Fraud
+
+Ho testato la pagina `/deluxe` per la sottoscrizione del abbonamento utilizzando diversi metodi (carta, wallet). Ho notato che al server viene inviata la modalità di pagamento e dettagli come id della carta. Ho provato a modificare questi senza successo. Dopodiché ho considerato di utilizzare la modalità dei coupon e ho inviato una richiesta `{"paymentMode":"coupon", "balance": 10000, "paymentId":3}` con la quale ho riscontrato successo. 
+
+# Unvalidated Redirects
+
+## Allowlist Bypass
+
+In precedenza avevo già individuato nella sidebar una pagina di redirect che porta a GitHub, sulla quale ho tentato di trovare vulnerabilità SSRF, senza successo. Trattandosi questa challenge di aggirare la lista di URL consentiti, ho provato alcuni payload `/redirect?to=https://github.com`, `/redirect?to=localhost:3000`... Utilizzando finalmente questo strano redirect `/redirect?to=http://localhost:3000/redirect?to=https://github.com/juice-shop/juice-shop` sono riuscito a completare la challenge, anche se non lo sapevo. La pagina mi reindirizzava su github, ma non capivo come potesse essere una vulnerabilità. Cercando su google ho scoperto che il payload malizioso può essere formato indirizzando a qualsiasi sito e assicurandosi di mettere il link github nei parametri, esempio: `redirect?to=https://example.com/?test=https://github.com/juice-shop/juice-shop`. Arrivo quindi alla conclusione che il codice backend verifica solo la presenza dell'url di GitHub.
