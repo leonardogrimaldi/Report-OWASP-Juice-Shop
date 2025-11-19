@@ -52,6 +52,8 @@ Vedi [questo](#easter-egg)
 
 ## Misplaced Signature File
 
+https://sigmahq.io
+
 [SIEM](https://en.wikipedia.org/wiki/Security_information_and_event_management).
 Vedi [questo](#easter-egg)
 
@@ -148,4 +150,10 @@ In precedenza avevo già individuato nella sidebar una pagina di redirect che po
 
 ## Legacy Typosquatting
 
-Questa challenge è stata molto interessante, ma anche difficile. Per prima cosa ha requisito aver completato challenge priori come [Easter Egg](#easter-egg) e [Forgotten developer backup](#forgotten-developer-backup) che richiedeva il *Poison Null Byte*. Scaricando il file dei package da `/ftp/package.json.bak`, è possibile vedere le dipendenze. Dopodiché da questo [articolo](https://iamakulov.com/notes/npm-malicious-packages/) ho scoperto come alcuni package potrebbero essere maliziosi. Ho provato anche a scannerizare il `package.json` con [npscan.com](https://npmscan.com), fallendo però a trovare la vulnerabilità. Provando a cercare su NPM i package uno ad uno, si scopre che `epilogue-js` è un package malizioso, con nome simile al vero `epilogue`. Completo la challenge inviando il nome del package sulla pagina contatti. 
+Questa challenge è stata molto interessante, ma anche difficile. Per prima cosa ha requisito aver completato challenge priori come [Easter Egg](#easter-egg) e [Forgotten developer backup](#forgotten-developer-backup) che richiedeva il *Poison Null Byte*. Scaricando il file dei package da `/ftp/package.json.bak`, è possibile vedere le dipendenze. Dopodiché da questo [articolo](https://iamakulov.com/notes/npm-malicious-packages/) ho scoperto come alcuni package potrebbero essere maliziosi. Ho provato anche a scannerizare il `package.json` con [npscan.com](https://npmscan.com), fallendo però a trovare la vulnerabilità. Provando a cercare su NPM i package uno ad uno, si scopre che `epilogue-js` è un package malizioso, con nome simile al vero `epilogue`. Completo la challenge inviando il nome del package sulla pagina contatti.
+
+# Cryptographic Issues
+
+## Nested Easter Egg
+
+Dopo aver completato [Easter Egg](#easter-egg) ho dovuto risolvere una nuova challenge contenuta nel file `eastere.gg` scoperto. Il testo evidentemente contiene una stringa codificata in *Base64* (lo si riconosce dal formato alfanumerico e con la terminazione `==`). Dopo averla decodificata, si ottiene una stringa incomprensibile: `/gur/qrif/ner/fb/shaal/gurl/uvq/na/rnfgre/rtt/jvguva/gur/rnfgre/rtt`. Le barre sembrano indicare che sia un URL, ma provando a richiedere, non si ottiene risposta. Manca un'ulteriore decifratura. Sapendo che OWASP non avrebbe dato un problema crittografico complesso, ho deciso di tentare con la decodifica del cifrario di Cesare, che sembra la più plausibile anche rispetto al formato della stringa. Con questo [sito](https://cryptii.com/pipes/caesar-cipher) sono riuscito a decodificare la stringa con un shift di 13 e ottenere l'URL finale per risolvere la challenge.
