@@ -42,6 +42,19 @@ Prometheus è un servizio di monitoraggio dei servizi molto famoso. Esso viene l
 
 Analizzando la pagina `/about` si è trovato il link a `/ftp/legal.md` che contiene informazioni legali. In questo vediamo il nome della sottocartella `ftp` che corrisponde al famoso *File Transfer Protocol*. Tentiamo quindi di accedere a `/ftp/` e visualizziamo infine la lista dei file che vengono involontariamente presentati all'utente. 
 
+## Forgotten Sales Backup
+
+Vedi [questo](#easter-egg)
+
+## Forgotten Developer Backup
+
+Vedi [questo](#easter-egg)
+
+## Misplaced Signature File
+
+[SIEM](https://en.wikipedia.org/wiki/Security_information_and_event_management).
+Vedi [questo](#easter-egg)
+
 # Injection
 
 ## Login Admin
@@ -77,6 +90,10 @@ Lasciando una recensione sul portale `/contact` si può visualizzare il funziona
 ## Product Tampering
 
 La challenge dice di modificare il `href` del prodotto 'OWASP SSL Advanced Forensic Tool (O-Saft)'. Sapendo che le operazioni di PUT non sono state bloccate per altre vulnerabilità, ho deciso di provare queste. Per prima cosa ho intercettato il formato JSON della risposta del prodotto e ho modificato l'attributo `href` secondo le indicazioni per la challenge. Poi ho cercato l'API dei prodotti: prima ho provato con `/Products/9` e poi con `/api/Products/9`. Sull'ultimo ho inviato richiesta PUT con Postman e sono riuscito a aggiornare la descrizione del prodotto.
+
+## Easter Egg
+
+Per questa challenge ho dovuto cercare un modo di accedere ai file. Dalla challenge [precedente](#confidential-document) abbiamo scoperto la presenza e visibilità della pagina `/ftp/`. Su questa troviamo una risorsa, chiamata `eastere.gg` che sembra essere quella necessaria per completare la missione. Purtroppo, non è possibile accedervi poiché il sito filtra oppure blocca estensioni diverse da `.md` e `.pdf`. Per ovviare questo, ho usato come riferimento [questa pagina](https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/07-Input_Validation_Testing/11.1-Testing_for_Local_File_Inclusion) e in particolare la modalità *Null byte injection*. Questa consiste nel aggiungere il payload `%00` in questo modo: `/ftp/eastere.gg%00.pdf`, il che però non funziona. Ritento allora un altro payload, `/ftp/eastere.gg%2500.pdf`. `%25` Corrisponde al carattere `%`, ma non ho trovato una reference del perché questo payload funziona. Comunque, il server restituisce un "pdf", che non è nient'altro che il nostro file `easter.egg` cambiato di estensione. Possiamo quindi rinominarlo e accedere direttamente al file per leggerlo, dopo averlo scaricato.
 
 # Broken Anti Automation
 
@@ -126,3 +143,9 @@ Ho testato la pagina `/deluxe` per la sottoscrizione del abbonamento utilizzando
 ## Allowlist Bypass
 
 In precedenza avevo già individuato nella sidebar una pagina di redirect che porta a GitHub, sulla quale ho tentato di trovare vulnerabilità SSRF, senza successo. Trattandosi questa challenge di aggirare la lista di URL consentiti, ho provato alcuni payload `/redirect?to=https://github.com`, `/redirect?to=localhost:3000`... Utilizzando finalmente questo strano redirect `/redirect?to=http://localhost:3000/redirect?to=https://github.com/juice-shop/juice-shop` sono riuscito a completare la challenge, anche se non lo sapevo. La pagina mi reindirizzava su github, ma non capivo come potesse essere una vulnerabilità. Cercando su google ho scoperto che il payload malizioso può essere formato indirizzando a qualsiasi sito e assicurandosi di mettere il link github nei parametri, esempio: `redirect?to=https://example.com/?test=https://github.com/juice-shop/juice-shop`. Arrivo quindi alla conclusione che il codice backend verifica solo la presenza dell'url di GitHub.
+
+# Vulnerable Components
+
+## Legacy Typosquatting
+
+Questa challenge è stata molto interessante, ma anche difficile. Per prima cosa ha requisito aver completato challenge priori come [Easter Egg](#easter-egg) e [Forgotten developer backup](#forgotten-developer-backup) che richiedeva il *Poison Null Byte*. Scaricando il file dei package da `/ftp/package.json.bak`, è possibile vedere le dipendenze. Dopodiché da questo [articolo](https://iamakulov.com/notes/npm-malicious-packages/) ho scoperto come alcuni package potrebbero essere maliziosi. Ho provato anche a scannerizare il `package.json` con [npscan.com](https://npmscan.com), fallendo però a trovare la vulnerabilità. Provando a cercare su NPM i package uno ad uno, si scopre che `epilogue-js` è un package malizioso, con nome simile al vero `epilogue`. Completo la challenge inviando il nome del package sulla pagina contatti. 
