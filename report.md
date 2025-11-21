@@ -36,6 +36,10 @@ La challenge suggerisce l'uso del payload `<iframe src="javascript:alert(`xss`)"
 
 Dopo aver eseguito l'accesso al account è possibile visuallizzare il proprio IP dala pagina `/privacy-security/last-login-ip` e da *ZAP* l'aggiornamento di questo tramite `/rest/saveLoginIp`. Nella richiesta di salvataggio dell'IP non vediamo nessuna menzione del nostro IP che possiamo modificare. Però cercando tra i Header di *Cloudflare* è possibile trovarne uno specifico chiamato **True-Client-Ip**. Immettendo esso nella richiesta e passando un qualsiasi payload (l'ip non viene validato) possiamo eseguire l'attaco XSS con il consueto payload `<iframe src="javascript:alert(xss)">`.
 
+## Server-side XSS Protection
+
+L'indizio di questa challenge dice di dover attaccare il campo *Comment* della pagina *Customer Feedback*. Su questa provo ad inviare un commento con il payload ```<iframe src="javascript:alert(`xss`)">```, ma nella risposta vedo che il server elimina interamente l'*iframe*. Tento di aggirare i filtri duplicando alcune lettere o `<`. Arrivo finalmente al payload che mi dà successo:```<<iframe>iframe src=\"javascript:alert(`xss`)\"> (***in@juice-sh.op)```.
+
 # Sensitive Data Exposure
 
 ## NFT Takeover
