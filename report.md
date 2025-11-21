@@ -28,6 +28,14 @@ https://www.youtube.com/watch?v=oyDa862JKqI
 
 ```<<script><<<sscript>alert(xss)</script>```
 
+## Client-side XSS Protection
+
+La challenge suggerisce l'uso del payload `<iframe src="javascript:alert(`xss`)">` per fare un attacco XSS persistente su una pagina con controlli di sicurezza lato client. Perciò ho cercato alcuni possibili bersagli come la pagina *Photo Wall*. Successivamente, ho attaccato la pagina di registrazione, sapendo che il campo email avesse un controllo. Ho provato dunque ad inviare una richiesta su *ZAP* con l'email contenente il payload di prima, ma ho riscontrato un errore: il JSON non eseguiva il parsing per colpa delle virgolette dentro *src*. Ho modificato il payload per usare i singoli apici `<iframe src='javascript:alert(`xss`)'>` e l'ho inviato con successo. Ora restava capire dove fosse andato il pacchetto e accedendo a [Admin Section](#admin-section) è stato possibile visualizzare l'alert. Tuttavia non ho risolto la challenge: OWASP chiedeva di usare esattamente le virgolette dentro l'*src* dell'*iframe*. Ho cercato quindi so Google come fare l'*escape* delle virgolette e posizionando il carattere `\` prima di esse sono riuscito a inviare ```<iframe src=\"javascript:alert(`xss`)\">```e risolvere correttamente la challenge.
+
+## HTTP-Header XSS
+
+Dopo aver eseguito l'accesso al account è possibile visuallizzare il proprio IP dala pagina `/privacy-security/last-login-ip` e da *ZAP* l'aggiornamento di questo tramite `/rest/saveLoginIp`. Nella richiesta di salvataggio dell'IP non vediamo nessuna menzione del nostro IP che possiamo modificare. Però cercando tra i Header di *Cloudflare* è possibile trovarne uno specifico chiamato **True-Client-Ip**. Immettendo esso nella richiesta e passando un qualsiasi payload (l'ip non viene validato) possiamo eseguire l'attaco XSS con il consueto payload `<iframe src="javascript:alert(xss)">`.
+
 # Sensitive Data Exposure
 
 ## NFT Takeover
@@ -56,6 +64,10 @@ https://sigmahq.io
 
 [SIEM](https://en.wikipedia.org/wiki/Security_information_and_event_management).
 Vedi [questo](#easter-egg)
+
+## GDPR Data Theft
+
+Per questa challenge ho analizzato il data export di un utente per cercare vulnerabilità. Poiché la funzionalità è interamente server-side, non ho potuto fare nulla. Ho quindi provato a ordinare un prodotto (secondo alcuni indizi) e vedere cosa succedeva. Nella risposta di tracking si vede che l'email dell'utente è offuscata con degli asterischi (es. `t*st*ng@gm**l.c*m` per `testing@gmail.com`). Creando quindi un nuovo utente con le lettere cambiate e facendo il data export si può accedere ai dati di un altro utente e risolvere la challenge.
 
 # Injection
 
@@ -151,6 +163,10 @@ In precedenza avevo già individuato nella sidebar una pagina di redirect che po
 ## Legacy Typosquatting
 
 Questa challenge è stata molto interessante, ma anche difficile. Per prima cosa ha requisito aver completato challenge priori come [Easter Egg](#easter-egg) e [Forgotten developer backup](#forgotten-developer-backup) che richiedeva il *Poison Null Byte*. Scaricando il file dei package da `/ftp/package.json.bak`, è possibile vedere le dipendenze. Dopodiché da questo [articolo](https://iamakulov.com/notes/npm-malicious-packages/) ho scoperto come alcuni package potrebbero essere maliziosi. Ho provato anche a scannerizare il `package.json` con [npscan.com](https://npmscan.com), fallendo però a trovare la vulnerabilità. Provando a cercare su NPM i package uno ad uno, si scopre che `epilogue-js` è un package malizioso, con nome simile al vero `epilogue`. Completo la challenge inviando il nome del package sulla pagina contatti.
+
+## Frontend Typosquatting
+
+
 
 # Cryptographic Issues
 
