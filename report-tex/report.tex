@@ -1,0 +1,53 @@
+\documentclass[a4paper,12pt]{report}
+
+\usepackage{alltt, fancyvrb, url}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{refs.bib}
+
+% Questo commentalo se vuoi scrivere in inglese.
+\usepackage[italian]{babel}
+
+\usepackage[italian]{cleveref}
+
+\title{Relazione di Tirocinio\\``Analisi di vulnerabilità nelle API REST e configurazione di un ambiente di test con strumenti OWASP''}
+
+\author{Grimaldi Leonardo\\\href{mailto:leonardo.grimaldi2@studio.unibo.it}{leonardo.grimaldi2@studio.unibo.it}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\chapter{XSS (Cross-Site Scripting)}
+\section{Descrizione}
+https://owasp.org/www-community/attacks/xss/
+\par
+Il Cross-Site Scripting (XSS) è una vulnerabilità web che consente di lanciare script maliziosi sul browser della vittima che accede a un sito leggittimo. Per fare ciò un attaccante può sfruttare diversi metodi tra cui URL manipolati e campi di input non validati.
+\par
+Gli attacchi XSS possono essere classificati in tre categorie principali:
+\begin{itemize}
+    \item Reflected XSS: lo script malizioso viene caricato come parte della risposta del server 
+    \item Stored XSS: lo script malizioso viene memorizzato sul server (ad esempio in un database) e viene eseguito quando un utente accede alla risorsa compromessa
+    \item DOM-based XSS: lo script malizioso viene eseguito a causa di modifiche al DOM\cite{mdn-dom} nel browser della vittima, senza fare richiesta al server
+\end{itemize}
+\section{Contromisure}
+Per prevenire gli attachi XSS è necessario sanare e validare tutti i dati in input provenienti dagli utenti, sia URL che form.
+\chapter{Injection}
+\section{Descrizione}
+I web server utilizzano ampiamente database per memorizzare e recuperare dati. Un attacco di tipo Injection si verifica quando un attaccante riesce a inserire comandi all'interno di una query SQL, permettendo così di manipolare il database in modi non previsti.
+\section{Contromisure}
+Gli attachi Injection si possono prevenire utilizzando le chiamate API sicure offerte dall'interfaccia con il database (al posto di costruire stringhe query dinamicamente), come i \textit{prepared statements} di PHP. È indispensabile inoltre validare correttamente l'input ed eliminare caratteri speciali che potrebbero compromettere la query.
+\chapter{Broken Access Control}
+\href{https://owasp.org/Top10/A01\_2021-Broken\_Access\_Control/}{https://owasp.org/Top10/A01\_2021-Broken\_Access\_Control/}
+\section{Descrizione}
+Il controllo degli accessi errato è la vulnerabilità più diffusa che prende il primo posto nella lista delle 10 vulnerabilità più diffuse di OWASP\cite{broken-access-control-OWASP}. Essa coinvolge principalmente le pagine e servizi nascosti dietro una pagina di autenticazione come login utente, amministratore, ma anche chiamate API che vengono eseguite nel contesto dell'applicazione. Esistono svariati vettori di attacco, ma i principali coinvolgono la modifica di richieste API, identificatori (come parametri GET negli URL, esempio: \texttt{/utente?id=1234}).
+\section{Contromisure}
+Il punto iniziale per mettere in sicurezza le pagine riservate (i.e. non disponibili al pubblico) è di negare ogni richiesta. Successivamente, implementare un meccanismo di autenticazione che viene replicato su \textit{tutte} le pagine private.
+\printbibliography
+\end{document}
