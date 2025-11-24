@@ -24,6 +24,8 @@
 
 \tableofcontents
 
+\chapter{Introduzione}
+OWASP Juice Shop. Strumenti utilizzati: OWASP ZAP, Postman, Chrome DevTools, 
 \chapter{XSS (Cross-Site Scripting)}
 \section{Descrizione}
 https://owasp.org/www-community/attacks/xss/
@@ -38,6 +40,23 @@ Gli attacchi XSS possono essere classificati in tre categorie principali:
 \end{itemize}
 \section{Contromisure}
 Per prevenire gli attachi XSS è necessario sanare e validare tutti i dati in input provenienti dagli utenti, sia URL che form.
+\section{Reflected XSS}
+La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'utente. Per provare ciò occorre inserire nella barra di ricerca il seguente codice \texttt{<h1>Test<h1>}, eseguire la ricerca e analizzare la risposta del server (definita \textit{reflected}) per trovare l'elemento inserito all'interno del DOM. L'immagine \pageref{fig:reflected-xss-probing} mostra il successo di questo test aprendo la strada per un attacco XSS.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/reflected-xss-probing.png}
+\caption{Probing della barra di ricerca con tag \textit{HTML} \texttt{<h1>}. L'\textit{ispeziona elementi} mostra la presenza del tag nell'albero della pagina suggerendo una possibile vulnerabilità.}
+\label{fig:reflected-xss-probing}
+\end{figure}
+Escogito un payload diverso che sfrutta questa vulnerabilità per eseguire uno script \textit{JavaScript}, che nella realtà si connetterrebbe a un server controllato dall'attaccante per rubare i dati dell'utente. Immetto nella barra di ricerca il seguente codice: \texttt{<script>alert(xss)</script>}, ma non verifico la sua esecuzione. Ciò è dovuto presumibilmente al fatto che lo standard \textit{HTML5} non consente l'esecuzione di tag \texttt{<script>} inseriti con \textit{innerHTML}\cite{innerHTML}.
+\par
+Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare codice esterno: \texttt{<iframe src="javascript:alert(`xss`)">}. In questo modo, il codice viene eseguito correttamente come mostrato in figura \pageref{fig:reflected-xss-result}. Verificando questa vulnerabilità, l'attacante può scegliere di inviare link appositamente creati alle vittime per eseguire codice malevolo nei loro browser da una fonte attendibile come il sito web compromesso.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/reflected-xss-result-small.png}
+\caption{Risultato di esecuzione del script malizioso contenuto dentro un tag \texttt{<iframe>}. L'alert dimostra che il codice è stato eseguito con successo.}
+\label{fig:reflected-xss-result}
+\end{figure}
 \chapter{Injection}
 \section{Descrizione}
 I web server utilizzano ampiamente database per memorizzare e recuperare dati. Un attacco di tipo Injection si verifica quando un attaccante riesce a inserire comandi all'interno di una query SQL, permettendo così di manipolare il database in modi non previsti.
