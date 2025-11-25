@@ -25,7 +25,9 @@
 \tableofcontents
 
 \chapter{Introduzione}
-OWASP Juice Shop. Strumenti utilizzati: OWASP ZAP, Postman, Chrome DevTools. Reconnaisance? happy path testing
+Le vulnerabilità web sono tra le più comuni e pericolose minacce alla sicurezza informatica. Esse possono essere sfruttate da attaccanti per compromettere la riservatezza, l'integrità e la disponibilità dei dati e dei sistemi. Nel corso del tirocinio sono state studiate ed analizzate diverse vulnerabilità tra cui XSS (Cross-Site Scripting), Injection e Broken Access Control. L'analisi è stata condotta utilizzando come target l'applicazione web OWASP Juice Shop, mentre per gli strument di test sono stati utilizzati OWASP ZAP, Postman e Chrome DevTools.
+\par
+Nella fase iniziale si è condotto un lavoro di analisi dell'applicazione per comprendere il suo funzionamento e individuare le aree potenzialmente vulnerabili. Successivamente, sono stati eseguiti test specifici per ogni vulnerabilità, documentando i risultati ottenuti.
 \chapter{XSS (Cross-Site Scripting)}
 \section{Descrizione}
 https://owasp.org/www-community/attacks/xss/
@@ -72,7 +74,7 @@ Per ottenere lo schema del database l'attenzione è stata posta sulla barra di r
 \end{figure}
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-incomplete-input.png}
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-incomplete-input-2.png}
 \caption{Pagina di errore restituita dal server in seguito al payload di injection \texttt{' OR true--} su \texttt{/rest/products/search?q=}. L'errore indica che la query SQL non è stata completata correttamente a causa del payload inserito.}
 \label{fig:api-search-incomplete-input}
 \end{figure}
