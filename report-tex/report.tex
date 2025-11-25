@@ -25,7 +25,7 @@
 \tableofcontents
 
 \chapter{Introduzione}
-OWASP Juice Shop. Strumenti utilizzati: OWASP ZAP, Postman, Chrome DevTools, 
+OWASP Juice Shop. Strumenti utilizzati: OWASP ZAP, Postman, Chrome DevTools. Reconnaisance? happy path testing
 \chapter{XSS (Cross-Site Scripting)}
 \section{Descrizione}
 https://owasp.org/www-community/attacks/xss/
@@ -40,28 +40,60 @@ Gli attacchi XSS possono essere classificati in tre categorie principali:
 \end{itemize}
 \section{Contromisure}
 Per prevenire gli attachi XSS è necessario sanare e validare tutti i dati in input provenienti dagli utenti, sia URL che form.
-\section{Reflected XSS}
-La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'utente. Per provare ciò occorre inserire nella barra di ricerca il seguente codice \texttt{<h1>Test<h1>}, eseguire la ricerca e analizzare la risposta del server (definita \textit{reflected}) per trovare l'elemento inserito all'interno del DOM. L'immagine \pageref{fig:reflected-xss-probing} mostra il successo di questo test aprendo la strada per un attacco XSS.
+\section{DOM XSS} \label{dom-xss}
+La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'utente. Per provare ciò occorre inserire nella barra di ricerca il seguente codice \texttt{<h1>Test<h1>}, eseguire la ricerca e analizzare la pagina modificata (senza interazione con il server) per trovare l'elemento inserito all'interno del DOM. L'immagine \pageref{fig:dom-xss-probing} mostra il successo di questo test aprendo la strada per un attacco XSS.
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/reflected-xss-probing.png}
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/dom-xss-probing.png}
 \caption{Probing della barra di ricerca con tag \textit{HTML} \texttt{<h1>}. L'\textit{ispeziona elementi} mostra la presenza del tag nell'albero della pagina suggerendo una possibile vulnerabilità.}
-\label{fig:reflected-xss-probing}
+\label{fig:dom-xss-probing}
 \end{figure}
 Escogito un payload diverso che sfrutta questa vulnerabilità per eseguire uno script \textit{JavaScript}, che nella realtà si connetterrebbe a un server controllato dall'attaccante per rubare i dati dell'utente. Immetto nella barra di ricerca il seguente codice: \texttt{<script>alert(xss)</script>}, ma non verifico la sua esecuzione. Ciò è dovuto presumibilmente al fatto che lo standard \textit{HTML5} non consente l'esecuzione di tag \texttt{<script>} inseriti con \textit{innerHTML}\cite{innerHTML}.
 \par
-Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare codice esterno: \texttt{<iframe src="javascript:alert(`xss`)">}. In questo modo, il codice viene eseguito correttamente come mostrato in figura \pageref{fig:reflected-xss-result}. Verificando questa vulnerabilità, l'attacante può scegliere di inviare link appositamente creati alle vittime per eseguire codice malevolo nei loro browser da una fonte attendibile come il sito web compromesso.
+Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare codice esterno: \texttt{<iframe src="javascript:alert(`xss`)">}. In questo modo, il codice viene eseguito correttamente come mostrato in figura \pageref{fig:dom-xss-result}. Verificando questa vulnerabilità, l'attacante può scegliere di inviare link appositamente creati alle vittime per eseguire codice malevolo nei loro browser da una fonte attendibile come il sito web compromesso. Essendo inoltre una vulnerabilità basata sul DOM, il server non ha modo di rilevare l'attacco.
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/reflected-xss-result-small.png}
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/dom-xss-result-small.png}
 \caption{Risultato di esecuzione del script malizioso contenuto dentro un tag \texttt{<iframe>}. L'alert dimostra che il codice è stato eseguito con successo.}
-\label{fig:reflected-xss-result}
+\label{fig:dom-xss-result}
 \end{figure}
 \chapter{Injection}
 \section{Descrizione}
 I web server utilizzano ampiamente database per memorizzare e recuperare dati. Un attacco di tipo Injection si verifica quando un attaccante riesce a inserire comandi all'interno di una query SQL, permettendo così di manipolare il database in modi non previsti.
 \section{Contromisure}
 Gli attachi Injection si possono prevenire utilizzando le chiamate API sicure offerte dall'interfaccia con il database (al posto di costruire stringhe query dinamicamente), come i \textit{prepared statements} di PHP. È indispensabile inoltre validare correttamente l'input ed eliminare caratteri speciali che potrebbero compromettere la query.
+\section{Database Schema}
+Per ottenere lo schema del database l'attenzione è stata posta sulla barra di ricerca dei prodotti. Si è tentato un payload iniziale semplice come \texttt{' OR 1=1--} che però non ha prodotto risultati, poiché la ricerca è lato client come visto in \ref{dom-xss}. Occorre perciò intercettare la richiesta API che recupera i prodotti dal database utilizzando \textit{ZAP}. La \ref{fig:api-search-request} mostra che il browser fa richiesta a \texttt{/rest/products/search?q=} per ottenere la lista dei prodotti da visualizzare. Navigando sull'URL se ne può avere conferma. Si sfrutta il parametro \texttt{q} per eseguire lo stesso payload di prima: il riscontro è un errore \texttt{SQLITE\_ERROR: incomplete input}. Questo errore conferisce un duplice risultato: il payload è stato iniettato correttamente nella query SQL e il database utilizzato è \textbf{SQLite}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-request.png}
+\caption{Richiesta API per la ricerca dei prodotti evidenziata in blu nella finestra inferiore. In alto la risposta del server contenente i header e il JSON dei prodotti (giallo e rosa)}
+\label{fig:api-search-request}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-incomplete-input.png}
+\caption{Pagina di errore restituita dal server in seguito al payload di injection \texttt{' OR true--} su \texttt{/rest/products/search?q=}. L'errore indica che la query SQL non è stata completata correttamente a causa del payload inserito.}
+\label{fig:api-search-incomplete-input}
+\end{figure}
+Per poter eseguire ulteriori injection è necessario conoscere la query che viene eseguita dal server. Rispetto alle vecchie versioni di \textit{Juice Shop}, la versione attuale non espone più le query SQL complete negli errori. Si cerca quindi su internet la query utilizzata, ma si può benissimo tentare di scoprirla con \textit{sqlmap}\cite{sqlmap}. \texttt{SELECT * FROM Products WHERE ((name LIKE ‘\%payload\%’ OR description LIKE ‘\%payload\%’) AND deletedAt IS NULL) ORDER BY name}.
+\par
+Dalla query possiamo capire il meccanismo di sostituzione del parametro \texttt{q} che viene iniettato e costruire il payload partendo con i caratteri \texttt{'))}. Essendo una query di selezione, sarà necessario appendere l'operatore \texttt{UNION} per ottenere il risultato della injection dentro la risposta del \texttt{SELECT}\cite{injection-union-attack}.
+\par
+Il passo successivo è quello di scoprire le tabelle del database. Ricercando su internet si trova che la query per ottenere i nomi delle tabelle in SQLite è: \texttt{SELECT sql FROM sqlite\_schema}\cite{sqlite-schema-query}. Ricomponendo i payload precedentemente descritti, il payload finale diventa: \texttt{test')) UNION SELECT sql FROM sqlite\_master--}. Ora però si tenta di esegurilo via browser, ma il server restituisce l'errore illustrato in figura \ref{fig:api-search-schema-fail}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-schema-fail.png}
+\caption{Errore restituito dal server in seguito al payload di injection per ottenere lo schema del database. L'errore indica che il numero di colonne restituite dalla query \texttt{UNION} non corrisponde a quello della query originale.}
+\label{fig:api-search-schema-fail}
+\end{figure}
+Per comprendere questo, è necessario sapere il funzionamento della \texttt{UNION}. Essa richiede che il numero di colonne restituite dalle due query sia lo stesso. Dalla query originale sappiamo che vengono restituite tutte le colonne della tabella \texttt{Products}, ma non sappiamo quante sono. Per scoprirlo si può procedere a tentativi e aggiungere colonne al payload finché non si ottiene una risposta valida. Il payload diventa quindi: \texttt{')) UNION SELECT sql,2,3,4,5,6,7,8,9 FROM sqlite\_master--} e si ottiene lo schema del database \ref{fig:api-search-schema-success}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-schema-success.png}
+\caption{Risposta JSON contenente lo schema del database in seguito al payload di injection corretto con il numero giusto di colonne.}
+\label{fig:api-search-schema-success}
+\end{figure}
 \chapter{Broken Access Control}
 \href{https://owasp.org/Top10/A01\_2021-Broken\_Access\_Control/}{https://owasp.org/Top10/A01\_2021-Broken\_Access\_Control/}
 \section{Descrizione}
