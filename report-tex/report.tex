@@ -63,7 +63,7 @@ I web server utilizzano ampiamente database per memorizzare e recuperare dati. U
 \section{Contromisure}
 Gli attachi Injection si possono prevenire utilizzando le chiamate API sicure offerte dall'interfaccia con il database (al posto di costruire stringhe query dinamicamente), come i \textit{prepared statements} di PHP. È indispensabile inoltre validare correttamente l'input ed eliminare caratteri speciali che potrebbero compromettere la query.
 \section{Database Schema}
-Per ottenere lo schema del database l'attenzione è stata posta sulla barra di ricerca dei prodotti. Si è tentato un payload iniziale semplice come \texttt{' OR 1=1--} che però non ha prodotto risultati, poiché la ricerca è lato client come visto in \ref{dom-xss}. Occorre perciò intercettare la richiesta API che recupera i prodotti dal database utilizzando \textit{ZAP}. La \ref{fig:api-search-request} mostra che il browser fa richiesta a \texttt{/rest/products/search?q=} per ottenere la lista dei prodotti da visualizzare. Navigando sull'URL se ne può avere conferma. Si sfrutta il parametro \texttt{q} per eseguire lo stesso payload di prima: il riscontro è un errore \texttt{SQLITE\_ERROR: incomplete input}. Questo errore conferisce un duplice risultato: il payload è stato iniettato correttamente nella query SQL e il database utilizzato è \textbf{SQLite}.
+Per ottenere lo schema del database l'attenzione è stata posta sulla barra di ricerca dei prodotti. Si è tentato un payload iniziale semplice come \texttt{' OR 1=1--} che però non ha prodotto risultati poiché la ricerca è lato client come visto in \ref{dom-xss}. Occorre perciò intercettare la richiesta API che recupera i prodotti dal database utilizzando \textit{ZAP}. La \ref{fig:api-search-request} mostra che il browser fa richiesta a \texttt{/rest/products/search?q=} per ottenere la lista dei prodotti da visualizzare. Navigando sull'URL se ne può avere conferma. Si sfrutta il parametro \texttt{q} per eseguire lo stesso payload di prima: il riscontro è un errore \texttt{SQLITE\_ERROR: incomplete input}. Questo errore conferisce un duplice risultato: il payload è stato iniettato correttamente nella query SQL e il database utilizzato è \textbf{SQLite}.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-request.png}
@@ -80,7 +80,7 @@ Per poter eseguire ulteriori injection è necessario conoscere la query che vien
 \par
 Dalla query possiamo capire il meccanismo di sostituzione del parametro \texttt{q} che viene iniettato e costruire il payload partendo con i caratteri \texttt{'))}. Essendo una query di selezione, sarà necessario appendere l'operatore \texttt{UNION} per ottenere il risultato della injection dentro la risposta del \texttt{SELECT}\cite{injection-union-attack}.
 \par
-Il passo successivo è quello di scoprire le tabelle del database. Ricercando su internet si trova che la query per ottenere i nomi delle tabelle in SQLite è: \texttt{SELECT sql FROM sqlite\_schema}\cite{sqlite-schema-query}. Ricomponendo i payload precedentemente descritti, il payload finale diventa: \texttt{test')) UNION SELECT sql FROM sqlite\_master--}. Ora però si tenta di esegurilo via browser, ma il server restituisce l'errore illustrato in figura \ref{fig:api-search-schema-fail}.
+Il passo successivo è quello di scoprire le tabelle del database. Ricercando su internet si trova che la query per ottenere i nomi delle tabelle in SQLite è: \texttt{SELECT sql FROM sqlite\_schema}\cite{sqlite-schema-query}. Ricomponendo i payload precedentemente descritti, il payload finale diventa: \texttt{')) UNION SELECT sql FROM sqlite\_master--}. Ora però si tenta di esegurilo via browser, ma il server restituisce l'errore illustrato in figura \ref{fig:api-search-schema-fail}.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-schema-fail.png}
@@ -100,5 +100,20 @@ Per comprendere questo, è necessario sapere il funzionamento della \texttt{UNIO
 Il controllo degli accessi errato è la vulnerabilità più diffusa che prende il primo posto nella lista delle 10 vulnerabilità più diffuse di OWASP\cite{broken-access-control-OWASP}. Essa coinvolge principalmente le pagine e servizi nascosti dietro una pagina di autenticazione come login utente, amministratore, ma anche chiamate API che vengono eseguite nel contesto dell'applicazione. Esistono svariati vettori di attacco, ma i principali coinvolgono la modifica di richieste API, identificatori (come parametri GET negli URL, esempio: \texttt{/utente?id=1234}).
 \section{Contromisure}
 Il punto iniziale per mettere in sicurezza le pagine riservate (i.e. non disponibili al pubblico) è di negare ogni richiesta. Successivamente, implementare un meccanismo di autenticazione che viene replicato su \textit{tutte} le pagine private.
+\section{Product Tampering}
+Scorrendo nel codice \textit{JavaScript} \texttt{main.js} del sito web è possibile trovare con grande facilità le API utilizzate per gestire i prodotti. Una di queste è \texttt{/api/Products} (Figura \ref{fig:api-products-devtools}). Si presuppone che l'endpoint venga utilizzato dagli amministratori per creare o modificare i prodotti, ma presto si vedrà che è possibile farne uso senza autenticazione.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-products-devtools.png}
+\caption{Codice \textit{JavaScript} che mostra l'uso dell'endpoint \texttt{/api/Products} visualizzato nei strumenti di sviluppo del browser.}
+\label{fig:api-products-devtools}
+\end{figure}
+Visitando l'endpoint API in questione vengono mostrati in formato JSON tutti i prodotti. Aggiungendo l'id di un prodotto: \texttt{/api/Products/9} è possibile interagire con il singolo prodotto. In HTTP si hanno diversi metodi di richiesta tra cui \texttt{GET}, \texttt{POST}, \texttt{PUT} e \texttt{DELETE}. Utilizzando \textit{Postman} si può inviare una richiesta di tipo \texttt{PUT} per modificare il prodotto con id 9 (Figura \ref{fig:api-products-put}). Nella richiesta si specifica la nuova descrizione del prodotto e si invia la richiesta senza nessun header di autenticazione. La risposta del server è positiva (codice 200) e il prodotto viene modificato con successo.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-products-put.png}
+\caption{Esecuzione con \textit{Postman} di una richiesta \texttt{PUT} sull'endpoint \texttt{/api/Products/9} per modificare il prodotto con id 9 senza autenticazione. La risposta del server (in basso) indica che la modifica è avvenuta con successo.}
+\label{fig:api-products-put}
+\end{figure}
 \printbibliography
 \end{document}
