@@ -146,7 +146,7 @@ Tentando dall'interfaccia grafica si riscontra l'errore \ref{fig:complaint-form-
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/complaint-form-zap-upload-prova.png}
-\caption{}
+\caption{Intercettazione con \textit{ZAP} di una richiesta pulita con allegato \texttt{prova.zip} visibile nel attributo \texttt{filename=""} del corpo della richiesta.}
 \label{fig:complaint-form-zap-upload-prova}
 \end{figure}
 La richiesta intercettata da \textit{ZAP} mostra chiaramente l'API di upload \texttt{/file-upload}, il metodo \texttt{POST} e il file allegato \texttt{prova.zip} e il codice di stato \texttt{204} che ne indica il successo. Si procede quindi nel \textit{Request Editor} di \textit{ZAP} per modificare il file allegato con uno di tipo non consentito, ad esempio \texttt{.txt} nel corpo della richiesta.
@@ -157,5 +157,16 @@ La richiesta intercettata da \textit{ZAP} mostra chiaramente l'API di upload \te
 \label{fig:complaint-form-zap-upload-text}
 \end{figure}
 Cliccando su \textit{Send} la richiesta modificata viene inviata al server. La risposta del server è nuovamente un \texttt{HTTP 204 code} e il file viene caricato con successo nonostante la violazione delle estensioni consentite. Ciò dimostra che il controllo delle estensioni è effettuato solo lato client e non sul server, permettendo così a un attaccante di caricare file arbitrari.
+\par
+Il passaggio finale per scovare l'interfaccia deprecata è quello di analizzare il codice \textit{JavaScript} del sito web. Cercando la parola chiave \texttt{file-upload} si trova facilmente la funzione che gestisce l'upload dei file \ref{fig:file-upload-main-js}. Al suo interno si nota il vettore \texttt{allowedMimeType} che consente l'upload di file \texttt{.xml} e \texttt{.yaml} oltre a quelli visti in precedenza.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/file-upload-main-js.png}
+\caption{Codice \texttt{JavaScript} che gestisce l'upload dei file nel sito web. Si notano le estensioni consentite lato client tra cui \texttt{.xml} e \texttt{.yaml}.}
+\label{fig:file-upload-main-js}
+\end{figure}
+Più avanti nel codice, si legge la stringa \texttt{Input area for uploading a single invoice PDF or XML B2B order file or a ZIP archive containing multiple invoices or orders<!---->} che conferma la presenza di un'interfaccia deprecata per l'upload di file \texttt{.xml}.
+\par
+Avendo ora la certezza dell'esistenza di questa interfaccia, si procede a caricare un file \texttt{.xml} arbitrario tramite \textit{ZAP} come fatto in precedenza. La risposta del server è positiva e il file viene caricato con successo.
 \printbibliography
 \end{document}
