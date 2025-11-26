@@ -119,7 +119,9 @@ Visitando l'endpoint API in questione vengono mostrati in formato JSON tutti i p
 \end{figure}
 \chapter{Security Misconfiguration}
 \section{Descrizione}
+Le configurazione errata delle applicazioni si trova al secondo posto della lista \textit{OWASP TOP 10}. Essa si verifica quando le impostazioni di sicurezza non sono configurate correttamente o sono lasciate ai valori predefiniti. Ciò può includere configurazioni errate del server web, del database, del sistema operativo o dell'applicazione stessa. 
 \section{Contromisure}
+Integrare nel contesto CI/CD i controlli sulle configurazioni. Cambiare le credenziali di accesso predefinite e revisionare le configurazioni.
 \section{Deprecated Interface}
 Dopo aver eseguito il login con un account personale è possibile vedere il link alla pagina \textit{Complaint} nella barra laterale (\texttt{/complain}). Visitandola si è presentati con un form \ref{fig:complaint-form} contenente i campi \textit{Customer} (non modificabile), \textit{Message*} e \textit{Invoice}, il quale consente di allegare un file opzionale. Il vettore di attacco è esattamente quest'ultimo, su cui verranno controllate le restrizioni di upload.
 \begin{figure}[H]
