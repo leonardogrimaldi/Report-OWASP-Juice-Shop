@@ -117,5 +117,45 @@ Visitando l'endpoint API in questione vengono mostrati in formato JSON tutti i p
 \caption{Esecuzione con \textit{Postman} di una richiesta \texttt{PUT} sull'endpoint \texttt{/api/Products/9} per modificare il prodotto con id 9 senza autenticazione. La risposta del server (in basso) indica che la modifica è avvenuta con successo.}
 \label{fig:api-products-put}
 \end{figure}
+\chapter{Security Misconfiguration}
+\section{Descrizione}
+\section{Contromisure}
+\section{Deprecated Interface}
+Dopo aver eseguito il login con un account personale è possibile vedere il link alla pagina \textit{Complaint} nella barra laterale (\texttt{/complain}). Visitandola si è presentati con un form \ref{fig:complaint-form} contenente i campi \textit{Customer} (non modificabile), \textit{Message*} e \textit{Invoice}, il quale consente di allegare un file opzionale. Il vettore di attacco è esattamente quest'ultimo, su cui verranno controllate le restrizioni di upload.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/complaint-form.png}
+\caption{Form di invio reclami con campo di caricamento file.}
+\label{fig:complaint-form}
+\end{figure}
+Premendo su \texttt{Sfoglia...} si apre l'esplora file del sistema operativo che consente di allegare i file. Su \textit{Windows} la finestra esplora file consente di filtrare le estensioni consentite nel menù a scelta in basso a destra. Tuttavia, è possibile visualizzare le stesse nel \textit{HTML} della pagina con l'ispeziona elementi. L'attributo \textit{accept} della figura \ref{fig:complaint-form-allowed-extensions} mostra le estensioni consentite \texttt{.pdf} e \texttt{.zip} lato client. Ovviamente, essendo solo un controllo locale, è possible che questo non venga effettuato sul server.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/complaint-form-allowed-extensions.png}
+\caption{Elemento \texttt{input} del form di invio reclami che mostra le estensioni consentite per gli allegati.}
+\label{fig:complaint-form-allowed-extensions}
+\end{figure}
+È saggio tentare di allegare un file con estensione arbitraria per verificare se il server accetta estensioni diverse da quelle elencate:
+\begin{figure}[H]
+\centering
+\includegraphics{images/complaint-form-forbidden-file-type.png}
+\caption{Violazione degli allegati consentiti dopo aver inserito un immagine \texttt{.jpg} nel form di invio reclami.}
+\label{fig:complaint-form-forbidden-file-type}
+\end{figure}
+Tentando dall'interfaccia grafica si riscontra l'errore \ref{fig:complaint-form-forbidden-file-type} che rende difficile procedere. In questi casi si decide di proseguire con \textit{ZAP} e intercettare una richiesta di invio del form pulita. Si crea quindi un file \texttt{prova.zip}, lo si allega al form con il commento e si invia la richiesta.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/complaint-form-zap-upload-prova.png}
+\caption{}
+\label{fig:complaint-form-zap-upload-prova}
+\end{figure}
+La richiesta intercettata da \textit{ZAP} mostra chiaramente l'API di upload \texttt{/file-upload}, il metodo \texttt{POST} e il file allegato \texttt{prova.zip} e il codice di stato \texttt{204} che ne indica il successo. Si procede quindi nel \textit{Request Editor} di \textit{ZAP} per modificare il file allegato con uno di tipo non consentito, ad esempio \texttt{.txt} nel corpo della richiesta.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/complaint-form-zap-upload-text.png}
+\caption{.}
+\label{fig:complaint-form-zap-upload-text}
+\end{figure}
+Cliccando su \textit{Send} la richiesta modificata viene inviata al server. La risposta del server è nuovamente un \texttt{HTTP 204 code} e il file viene caricato con successo nonostante la violazione delle estensioni consentite. Ciò dimostra che il controllo delle estensioni è effettuato solo lato client e non sul server, permettendo così a un attaccante di caricare file arbitrari.
 \printbibliography
 \end{document}
