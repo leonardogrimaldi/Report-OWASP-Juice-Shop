@@ -41,9 +41,9 @@ Gli attacchi XSS possono essere classificati in tre categorie principali:
     \item DOM-based XSS: lo script malizioso viene eseguito a causa di modifiche al DOM\cite{mdn-dom} nel browser della vittima, senza fare richiesta al server
 \end{itemize}
 \section{Contromisure}
-Per prevenire gli attachi XSS è necessario sanare e validare tutti i dati in input provenienti dagli utenti, sia URL che form.
+Per prevenire gli attachi XSS è necessario sanare e validare tutti i dati in input provenienti dagli utenti, sia URL che form. Le metodologie di sviluppo moderne come i framework web ne consentono la mitigazione implementando misure di sicurezza che automaticamente eseguono la sanificazione. Perciò per comprendere bene le potenziali falle di sicurezza è necessario conoscere accuratamente le chiamate dei framework utilizzati. Inoltre, bisogna prestare attenzione all'utilizzo di funzioni che esegono il \textit{bypass} delle misure di sicurezza come \texttt{bypassSecurityTrust}\cite{angular-domsanitizer} di \textit{Angular}. 
 \section{DOM XSS} \label{dom-xss}
-La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'utente. Per provare ciò occorre inserire nella barra di ricerca il seguente codice \texttt{<h1>Test<h1>}, eseguire la ricerca e analizzare la pagina modificata (senza interazione con il server) per trovare l'elemento inserito all'interno del DOM. L'immagine \pageref{fig:dom-xss-probing} mostra il successo di questo test aprendo la strada per un attacco XSS.
+La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'utente. Per provare ciò occorre inserire nella barra di ricerca il seguente codice \texttt{<h1>Test<h1>}, eseguire la ricerca e analizzare la pagina modificata (senza interazione con il server) per trovare l'elemento inserito all'interno del DOM. L'immagine \ref{fig:dom-xss-probing} mostra il successo di questo test aprendo la strada per un attacco XSS.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/dom-xss-probing.png}
@@ -52,7 +52,7 @@ La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'u
 \end{figure}
 Escogito un payload diverso che sfrutta questa vulnerabilità per eseguire uno script \textit{JavaScript}, che nella realtà si connetterrebbe a un server controllato dall'attaccante per rubare i dati dell'utente. Immetto nella barra di ricerca il seguente codice: \texttt{<script>alert(xss)</script>}, ma non verifico la sua esecuzione. Ciò è dovuto presumibilmente al fatto che lo standard \textit{HTML5} non consente l'esecuzione di tag \texttt{<script>} inseriti con \textit{innerHTML}\cite{innerHTML}.
 \par
-Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare codice esterno: \texttt{<iframe src="javascript:alert(`xss`)">}. In questo modo, il codice viene eseguito correttamente come mostrato in figura \pageref{fig:dom-xss-result}. Verificando questa vulnerabilità, l'attacante può scegliere di inviare link appositamente creati alle vittime per eseguire codice malevolo nei loro browser da una fonte attendibile come il sito web compromesso. Essendo inoltre una vulnerabilità basata sul DOM, il server non ha modo di rilevare l'attacco.
+Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare codice esterno: \texttt{<iframe src="javascript:alert(`xss`)">}. In questo modo, il codice viene eseguito correttamente come mostrato in figura \ref{fig:dom-xss-result}. Verificando questa vulnerabilità, l'attacante può scegliere di inviare link appositamente creati alle vittime per eseguire codice malevolo nei loro browser da una fonte attendibile come il sito web compromesso. Essendo inoltre una vulnerabilità basata sul DOM, il server non ha modo di rilevare l'attacco.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/dom-xss-result-small.png}
@@ -60,10 +60,16 @@ Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare 
 \label{fig:dom-xss-result}
 \end{figure}
 \chapter{Injection}
+\href{https://owasp.org/Top10/2025/A05_2025-Injection/}{OWASP TOP 10 (2025) - Injection}\cite{injection-owasp}
 \section{Descrizione}
-I web server utilizzano ampiamente database per memorizzare e recuperare dati. Un attacco di tipo Injection si verifica quando un attaccante riesce a inserire comandi all'interno di una query SQL, permettendo così di manipolare il database in modi non previsti.
+I web server utilizzano ampiamente database per memorizzare e recuperare dati. Un attacco di tipo Injection si verifica quando un attaccante riesce a inserire comandi all'interno di una query SQL, permettendo così di manipolare il database in modi non previsti. Esistono tre tipologie di attacchi Injection:
+\begin{description}
+    \item[Inband] La richiesta e la risposta avvengono attraverso lo stesso canale di comunicazione
+    \item[Out-of-band] La risposta avviene attraverso un canale diverso rispetto alla richiesta (ad esempio tramite email)
+    \item[Inferential] La risposta viene dedotta osservando il comportamento del server (ad esempio tempi di risposta diversi)
+\end{description}
 \section{Contromisure}
-Gli attachi Injection si possono prevenire utilizzando le chiamate API sicure offerte dall'interfaccia con il database (al posto di costruire stringhe query dinamicamente), come i \textit{prepared statements} di PHP. È indispensabile inoltre validare correttamente l'input ed eliminare caratteri speciali che potrebbero compromettere la query.
+Gli attachi Injection si possono prevenire utilizzando le chiamate API sicure offerte dall'interfaccia con il database (al posto di costruire stringhe query dinamicamente), come i \textit{prepared statements} di PHP. È indispensabile inoltre validare correttamente l'input ed eliminare caratteri speciali che potrebbero compromettere la query. 
 \section{Database Schema}
 Per ottenere lo schema del database l'attenzione è stata posta sulla barra di ricerca dei prodotti. Si è tentato un payload iniziale semplice come \texttt{' OR 1=1--} che però non ha prodotto risultati poiché la ricerca è lato client come visto in \ref{dom-xss}. Occorre perciò intercettare la richiesta API che recupera i prodotti dal database utilizzando \textit{ZAP}. La \ref{fig:api-search-request} mostra che il browser fa richiesta a \texttt{/rest/products/search?q=} per ottenere la lista dei prodotti da visualizzare. Navigando sull'URL se ne può avere conferma. Si sfrutta il parametro \texttt{q} per eseguire lo stesso payload di prima: il riscontro è un errore \texttt{SQLITE\_ERROR: incomplete input}. Questo errore conferisce un duplice risultato: il payload è stato iniettato correttamente nella query SQL e il database utilizzato è \textbf{SQLite}.
 \begin{figure}[H]
@@ -97,11 +103,11 @@ Per comprendere questo, è necessario sapere il funzionamento della \texttt{UNIO
 \label{fig:api-search-schema-success}
 \end{figure}
 \chapter{Broken Access Control}
-\href{https://owasp.org/Top10/A01\_2021-Broken\_Access\_Control/}{https://owasp.org/Top10/A01\_2021-Broken\_Access\_Control/}
+\href{https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/}{OWASP TOP 10 (2025) - Broken Access Control}\cite{broken-access-control-owasp}
 \section{Descrizione}
-Il controllo degli accessi errato è la vulnerabilità più diffusa che prende il primo posto nella lista delle 10 vulnerabilità più diffuse di OWASP\cite{broken-access-control-OWASP}. Essa coinvolge principalmente le pagine e servizi nascosti dietro una pagina di autenticazione come login utente, amministratore, ma anche chiamate API che vengono eseguite nel contesto dell'applicazione. Esistono svariati vettori di attacco, ma i principali coinvolgono la modifica di richieste API, identificatori (come parametri GET negli URL, esempio: \texttt{/utente?id=1234}).
+Il controllo degli accessi errato è la vulnerabilità più diffusa che prende il primo posto nella lista delle 10 vulnerabilità più diffuse di OWASP\cite{broken-access-control-owasp}. Essa coinvolge principalmente le pagine e servizi nascosti dietro una pagina di autenticazione come login utente, amministratore, ma anche chiamate API che vengono eseguite nel contesto dell'applicazione. Esistono svariati vettori di attacco, ma i principali coinvolgono la modifica di richieste API, identificatori (come parametri GET negli URL, esempio: \texttt{/utente?id=1234}).
 \section{Contromisure}
-Il punto iniziale per mettere in sicurezza le pagine riservate (i.e. non disponibili al pubblico) è di negare ogni richiesta. Successivamente, implementare un meccanismo di autenticazione che viene replicato su \textit{tutte} le pagine private.
+Il punto iniziale per mettere in sicurezza le pagine riservate (i.e. non disponibili al pubblico) è di negare ogni richiesta. Successivamente, implementare un meccanismo di autenticazione che viene replicato su \textit{tutte} le pagine private. L'accesso deve essere consentito in base al ruolo (Role-Based Access Control - RBAC), attribuendo i minimi privilegi necessari per eseguire le operazioni richieste. Infine, è importante monitorare e registrare tutte le attività sospette per rilevare eventuali tentativi di accesso non autorizzato. Implementare il \textit{rate-limiting} per prevenire attacchi di forza bruta.
 \section{Product Tampering}
 Scorrendo nel codice \textit{JavaScript} \texttt{main.js} del sito web è possibile trovare con grande facilità le API utilizzate per gestire i prodotti. Una di queste è \texttt{/api/Products} (Figura \ref{fig:api-products-devtools}). Si presuppone che l'endpoint venga utilizzato dagli amministratori per creare o modificare i prodotti, ma presto si vedrà che è possibile farne uso senza autenticazione.
 \begin{figure}[H]
@@ -118,10 +124,11 @@ Visitando l'endpoint API in questione vengono mostrati in formato JSON tutti i p
 \label{fig:api-products-put}
 \end{figure}
 \chapter{Security Misconfiguration}
+\href{https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/}{OWASP TOP 10 (2025) - Security Misconfiguration}\cite{security-misconfiguration-owasp}
 \section{Descrizione}
-Le configurazione errata delle applicazioni si trova al secondo posto della lista \textit{OWASP TOP 10}. Essa si verifica quando le impostazioni di sicurezza non sono configurate correttamente o sono lasciate ai valori predefiniti. Ciò può includere configurazioni errate del server web, del database, del sistema operativo o dell'applicazione stessa. 
+Le configurazione errata delle applicazioni si trova al secondo posto della lista \textit{OWASP TOP 10}. Essa si verifica quando le impostazioni di sicurezza non sono configurate correttamente o sono lasciate ai valori predefiniti. Ciò può includere configurazioni errate del server web, del database, del sistema operativo o dell'applicazione stessa. In aggiunta, la comunicazione di messaggi di errore dettagliati agli utenti finali può rivelare informazioni sensibili che possono essere sfruttate dagli attaccanti.
 \section{Contromisure}
-Integrare nel contesto CI/CD i controlli sulle configurazioni. Cambiare le credenziali di accesso predefinite e revisionare le configurazioni.
+Integrare nel contesto CI/CD i controlli sulle configurazioni. Cambiare le credenziali di accesso predefinite e revisionare le configurazioni. Evitare di esporre messaggi di errore e disabilitare le funzionalità non necessarie.
 \section{Deprecated Interface}
 Dopo aver eseguito il login con un account personale è possibile vedere il link alla pagina \textit{Complaint} nella barra laterale (\texttt{/complain}). Visitandola si è presentati con un form \ref{fig:complaint-form} contenente i campi \textit{Customer} (non modificabile), \textit{Message*} e \textit{Invoice}, il quale consente di allegare un file opzionale. Il vettore di attacco è esattamente quest'ultimo, su cui verranno controllate le restrizioni di upload.
 \begin{figure}[H]
@@ -170,5 +177,7 @@ Il passaggio finale per scovare l'interfaccia deprecata è quello di analizzare 
 Più avanti nel codice, si legge la stringa \texttt{Input area for uploading a single invoice PDF or XML B2B order file or a ZIP archive containing multiple invoices or orders<!---->} che conferma la presenza di un'interfaccia deprecata per l'upload di file \texttt{.xml}.
 \par
 Avendo ora la certezza dell'esistenza di questa interfaccia, si procede a caricare un file \texttt{.xml} arbitrario tramite \textit{ZAP} come fatto in precedenza. La risposta del server è positiva e il file viene caricato con successo.
+\chapter{Conclusioni}
+Le vulnerabilità web sono molto diffuse e spesso facili da sfruttare. Derivano principalmente da un uso erroneo delle tecnologie web e da una scarsa conoscenza delle misure di sicurezza da adottare.
 \printbibliography
 \end{document}
