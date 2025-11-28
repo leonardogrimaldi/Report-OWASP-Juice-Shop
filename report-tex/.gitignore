@@ -42,6 +42,7 @@
 *.xdy
 *.xml
 *blx.bib
+*.bbl-SAVE-ERROR
 .bak 
 .mtc
 build/

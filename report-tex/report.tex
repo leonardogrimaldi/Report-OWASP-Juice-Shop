@@ -28,6 +28,47 @@
 Le vulnerabilità web sono tra le più comuni e pericolose minacce alla sicurezza informatica. Esse possono essere sfruttate da attaccanti per compromettere la riservatezza, l'integrità e la disponibilità dei dati e dei sistemi. Nel corso del tirocinio sono state studiate ed analizzate diverse vulnerabilità tra cui XSS (Cross-Site Scripting), Injection e Broken Access Control. L'analisi è stata condotta utilizzando come target l'applicazione web OWASP Juice Shop, mentre per gli strument di test sono stati utilizzati OWASP ZAP, Postman e Chrome DevTools.
 \par
 Nella fase iniziale si è condotto un lavoro di analisi dell'applicazione per comprendere il suo funzionamento e individuare le aree potenzialmente vulnerabili. Successivamente, sono stati eseguiti test specifici per ogni vulnerabilità, documentando i risultati ottenuti.
+\section{Strumenti utilizzati}
+\subsection{Browser DevTools}
+Il primo è più importante strumento che è stato utilizzato è lo strumento di sviluppo integrato nei browser web come Chrome e Firefox. Per entrambi, la scorciatoia di apertura sono i tasti \texttt{CTRL + SHIFT + I}. La loro utilità si trova nelle finestre \textit{Console}, \textit{Elements}, \textit{Sources}, \textit{Network}.
+\subsubsection{Console}
+La console registra i messaggi di log, gli errori e gli avvisi generati dalla pagina web. È possibile eseguire comandi JavaScript direttamente nella console per testare il comportamento della pagina. Nell'esecuzione di codice lato cliente può accadere che alcune chiamate API restituiscano errore; visualizzarli in console costituisce un primo sopralluogo dell'applicazione.
+\subsubsection{Elements (Inspector su Firefox)}
+La scheda elementi (figura \ref{fig:chrome-dev-tools-elements} e \ref{fig:api-products-devtools}) mostra l'albero DOM\cite{mdn-dom} della pagina HTML. Consente di ispezionare e modificare gli elementi HTML e i loro stili CSS in tempo reale. Nell'analisi delle vulnerabilità si può trovare utile modificare attributi per consentire operazioni sull'interfaccia grafica (vedi \ref{fig:complaint-form-allowed-extensions}). Inoltre questa visualizzazione consente facilmente di saltare negli \textit{event listener} associati ad un elemento come i bottoni, per analizzare il codice JavaScript e cercare endpoint API.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/chrome-dev-tools-elements.png}
+\caption{Finestra \textit{Elements} dei developer tools. Lo spazio a sinistra mostra l'albero degli elementi mentre a destra si trovano gli \textit{Event Listeners} e altre schermate debug per \textit{CSS}}
+\label{fig:chrome-dev-tools-elements}
+\end{figure}
+\subsubsection{Sources (Debugger su Firefox)}
+Nella schermata di figura \ref{fig:chrome-dev-tools-sources} si visualizzano i file \texttt{.js} ai quali la pagina fa riferimento. Contiene il codice eseguito lato client.e quindi gli \textit{event listener} accennati nel punto precedente. Si rivela molto utile (soprattutto per siti \textit{React} e \textit{Angular} che sono \textit{JS-heavy}) per la raccolta di informazioni poiché essa contiene chiamate \textit{API} e molto spesso commenti degli sviluppatori o chiavi importanti che consentono il sorpasso delle autorizzazioni (\textbf{privilege escalation}).
+\par
+Un altro utilizzo importante è lo \textbf{script overriding}. Abilitando alcune impostazioni e assegnando una cartella si può configurare il sito per eseguire codice \textit{JavaScript} modificato localmente a proprio piacere.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/chrome-dev-tools-sources.png}
+\caption{Finestra \textit{Sources} con tre suddivisioni: A sinistra i file necessari per l'esecuzione lato client del sito, al centro i singoli file aperti (il bollino viola accanto a \texttt{main.js} indica lo script override) e a destra il debugger \textit{JavaScript}}
+\label{fig:chrome-dev-tools-sources}
+\end{figure}
+\subsubsection{Network}
+Le richieste al server e le risposte vengono collocate nella finestra \textit{Network} che costituisce quindi uno strumento molto potente per il testing di sicurezza. Si può intendere come una versione minimale di \textit{ZAP} che consente di vedere gli \textit{Header}, \textit{Request} e \textit{Response} dei pacchetti HTTP. Tuttavia non lo sostituisce interamente poiché la funzionalità di intercettazione con \textit{Proxy} di \textit{ZAP} rivela molte più richieste.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/chrome-dev-tools-network.png}
+\caption{Finestra \textit{Network} con il grafico dei tempi di richesta, la lista di richieste (login evidenziato) e il Payload}
+\label{fig:chrome-dev-tools-network}
+\end{figure}
+\subsubsection{Chrome vs Firefox DevTools}
+L'intefaccia di Chrome DevTools si presenta più moderna e curata rispetto a Firefox. Tuttavia, quest'ultimo offre alcune funzionalità aggiuntive che lo rendono più adatto per il testing di sicurezza. Ad esempio, Firefox consente di modificare gli \textit{Header} delle richieste direttamente dalla scheda \textit{Network} (Figura \ref{fig:firefox-dev-tools-network}), mentre in Chrome è necessario utilizzare estensioni di terze parti. Inoltre, Firefox offre una migliore integrazione con strumenti di sicurezza come \textit{ZAP} e \textit{Burp Suite}.
+\par
+In più, su Firefox DevTools è molto più facile trovare il riferimento al codice \textit{JavaScript} per un elemento \textit{HTML}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/firefox-dev-tools-network.png}
+\caption{Creazione di una nuova richiesta su Firefox partendo da una già fatta}
+\label{fig:firefox-dev-tools-network}
+\end{figure}
 \chapter{XSS (Cross-Site Scripting)}
 \section{Descrizione}
 https://owasp.org/www-community/attacks/xss/
