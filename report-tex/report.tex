@@ -69,6 +69,47 @@ In più, su Firefox DevTools è molto più facile trovare il riferimento al codi
 \caption{Creazione di una nuova richiesta su Firefox partendo da una già fatta}
 \label{fig:firefox-dev-tools-network}
 \end{figure}
+\subsection{OWASP ZAP}
+Il Zed Attack Proxy (ZAP) è uno strumento open source per il testing di sicurezza delle applicazioni web. Funziona come un proxy tra il browser e il server web, consentendo di intercettare, modificare e analizzare le richieste e le risposte HTTP. Tra le sue funzionalità principali vi sono:
+\begin{itemize}
+    \item Intercettazione delle richieste e risposte HTTP
+    \item Scansione automatica delle vulnerabilità
+    \item Analisi delle sessioni e gestione dei cookie
+    \item Fuzzing delle richieste per individuare vulnerabilità
+\end{itemize}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/zap-main-window.png}
+\caption{Finestra principale di OWASP ZAP con la lista delle richieste intercettate e il pannello di analisi della richiesta selezionata.}
+\label{fig:zap-main-window}
+\end{figure}
+\subsection{Postman}
+Postman è uno strumento popolare per testare e sviluppare API. Consente di creare, inviare e analizzare richieste HTTP in modo semplice e intuitivo. Tra le sue funzionalità principali vi sono:
+\begin{itemize}
+    \item Creazione di richieste HTTP personalizzate
+    \item Gestione delle collezioni di richieste
+    \item Test automatizzati delle API
+    \item Generazione di documentazione per le API
+\end{itemize}
+Nel corso del tirocinio Postman è stato utilizzato principalmente per inviare richieste \texttt{PUT} e \texttt{POST} alle API del server per testare le vulnerabilità di Broken Access Control e Security Misconfiguration come in figura \ref{fig:api-products-put}
+\section{Applicazione vulnerabile}
+In rete esistono numerose applicazioni web vulnerabili create appositamente per l'apprendimento e la pratica del testing di sicurezza. Tra queste, \textbf{OWASP Juice Shop} (\ref{fig:juice-shop-logo}) è una delle più popolari e complete. Si tratta di un'applicazione web open source sviluppata da OWASP (Open Web Application Security Project) che simula un negozio online con numerose vulnerabilità comuni.
+\begin{figure}[H]
+\centering
+\includegraphics{images/juice_shop_logo.png}
+\caption{Logo dell'applicazione OWASP Juice Shop}
+\label{fig:juice-shop-logo}
+\end{figure}
+\par
+La sua Scoreboard consente di tenere traccia delle vulnerabilità scoperte e delle sfide completate e fornisce suggerimenti per risolvere, nonché piccole challenge di sviluppo per trovare la giusta contromisura.
+\subsubsection{Installazione}
+Per lanciare OWASP Juice Shop sulla macchina locale è necessario  avere installato \textit{Node.js} e \textit{npm}. Successivamente, si può clonare il repository ufficiale da GitHub\cite{juice-shop-github} ed eseguire i seguenti comandi nel terminale: \texttt{npm install} per installare le dipendenze e \texttt{npm start} per avviare l'applicazione. Una volta avviata, l'applicazione sarà accessibile tramite il browser all'indirizzo \texttt{http://localhost:3000}.
+\subsubsection{Happy path testing}
+Una volta lanciata la applicazione, è stato eseguito il \textit{happy path testing} per comprendere il flusso di lavoro dell'applicazione e identificare le funzionalità principali. Ciò include la navigazione tra le pagine, l'aggiunta di prodotti al carrello, la registrazione e il login degli utenti, nonché il completamento di un ordine. Durante questa fase si è prestato attenzione a eventuali messaggi di errore o comportamenti inaspettati che potrebbero indicare la presenza di vulnerabilità.
+\subsubsection{Reconnaisance}
+Dopo aver compreso il funzionamento dell'applicazione, il passo successivo è stato la raccolta delle informazioni \textit{information gathering} per scoprire le vulnerabilità. Si è usato ZAP per intercettare le richieste, DevTools per ricercare endpoint API esposti e letti i post, le recensioni degli utenti e i commenti degli sviluppatori per fornire un quadro \textbf{OSINT} (\textit{Open Source Intelligence}).
+\par
+Questo ha reso possibile la scoperta dell'email dell'amministratore, di alcuni utenti (e delle loro risposte di sicurezza) e chiavi private.
 \chapter{XSS (Cross-Site Scripting)}
 \section{Descrizione}
 https://owasp.org/www-community/attacks/xss/
