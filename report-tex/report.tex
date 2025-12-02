@@ -23,7 +23,8 @@
 \maketitle
 
 \tableofcontents
-
+\chapter{Sintesi}
+In questa relazione vengono descritte le attività svolte durante il tirocinio riguardanti l'analisi di vulnerabilità web nell'applicazione vulnerabile \textbf{``Juice Shop"}. Vengono illustrate le \textbf{metodologie} utilizzate per identificare e sfruttare le vulnerabilità, nonché le \textbf{contromisure} adottate per mitigare i rischi associati. Si descrive in dettaglio l'uso dei browser DevTools per l'analisi del codice lato client, l'intercettazione delle richieste HTTP con OWASP ZAP e l'invio di richieste API con Postman. Vengono inoltre presentati i risultati ottenuti nell'identificazione di vulnerabilità come XSS, Injection e Broken Access Control, insieme alle raccomandazioni per migliorare la sicurezza dell'applicazione.
 \chapter{Introduzione}
 Le vulnerabilità web sono tra le più comuni e pericolose minacce alla sicurezza informatica. Esse possono essere sfruttate da attaccanti per compromettere la riservatezza, l'integrità e la disponibilità dei dati e dei sistemi. Nel corso del tirocinio sono state studiate ed analizzate diverse vulnerabilità tra cui XSS (Cross-Site Scripting), Injection e Broken Access Control. L'analisi è stata condotta utilizzando come target l'applicazione web OWASP Juice Shop, mentre per gli strument di test sono stati utilizzati OWASP ZAP, Postman e Chrome DevTools.
 \par
@@ -111,9 +112,12 @@ Dopo aver compreso il funzionamento dell'applicazione, il passo successivo è st
 \par
 Questo ha reso possibile la scoperta dell'email dell'amministratore, di alcuni utenti (e delle loro risposte di sicurezza) e chiavi private.
 \chapter{XSS (Cross-Site Scripting)}
-\section{Descrizione}
-https://owasp.org/www-community/attacks/xss/
+\href{https://owasp.org/Top10/2025/A05_2025-Injection/}{OWASP TOP 10 (2025) - Injection}\cite{injection-owasp}
+\newline
+\href{https://owasp.org/www-community/attacks/xss/}{OWASP XSS}\cite{xss-owasp}
 \par
+Il Cross-Site Scripting viene classificato come una vulnerabilità di tipo Injection, ma viene trattato separatamente per la sua diffusione.
+\section{Descrizione}
 Il Cross-Site Scripting (XSS) è una vulnerabilità web che consente di lanciare script maliziosi sul browser della vittima che accede a un sito leggittimo. Per fare ciò un attaccante può sfruttare diversi metodi tra cui URL manipolati e campi di input non validati.
 \par
 Gli attacchi XSS possono essere classificati in tre categorie principali:
@@ -244,7 +248,7 @@ La richiesta intercettata da \textit{ZAP} mostra chiaramente l'API di upload \te
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/complaint-form-zap-upload-text.png}
-\caption{.}
+\caption{Richiesta HTTP modificata in \textit{ZAP} con \textit{Manual Request Editor} per allegare un file di tipo non consentito \texttt{.txt}.}
 \label{fig:complaint-form-zap-upload-text}
 \end{figure}
 Cliccando su \textit{Send} la richiesta modificata viene inviata al server. La risposta del server è nuovamente un \texttt{HTTP 204 code} e il file viene caricato con successo nonostante la violazione delle estensioni consentite. Ciò dimostra che il controllo delle estensioni è effettuato solo lato client e non sul server, permettendo così a un attaccante di caricare file arbitrari.
@@ -260,6 +264,8 @@ Più avanti nel codice, si legge la stringa \texttt{Input area for uploading a s
 \par
 Avendo ora la certezza dell'esistenza di questa interfaccia, si procede a caricare un file \texttt{.xml} arbitrario tramite \textit{ZAP} come fatto in precedenza. La risposta del server è positiva e il file viene caricato con successo.
 \chapter{Conclusioni}
-Le vulnerabilità web sono molto diffuse e spesso facili da sfruttare. Derivano principalmente da un uso erroneo delle tecnologie web e da una scarsa conoscenza delle misure di sicurezza da adottare.
+Le vulnerabilità web sono molto diffuse e spesso facili da sfruttare. Derivano principalmente da un uso erroneo delle tecnologie web e da una scarsa conoscenza delle misure di sicurezza da adottare. È fondamentale per gli sviluppatori web essere consapevoli delle potenziali minacce e utilizzare le migliori pratiche di sicurezza per proteggere le applicazioni e i dati degli utenti. Queste possono variare da semplici accorgimenti come la validazione dell'input e l'uso di framework sicuri, fino a misure più avanzate come l'implementazione di sistemi di autenticazione robusti e la crittografia dei dati sensibili. Inoltre, è importante mantenere le applicazioni aggiornate con le ultime \textbf{patch di sicurezza} e monitorare costantemente il traffico per rilevare eventuali attività sospette.
+\par
+In più, l'implementazione di misure come \textit{rate limiting} 
 \printbibliography
 \end{document}
