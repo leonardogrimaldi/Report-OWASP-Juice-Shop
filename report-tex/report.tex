@@ -1,3 +1,4 @@
+%LTeX: language=it-IT
 \documentclass[a4paper,12pt]{report}
 
 \usepackage{alltt, fancyvrb, url}
@@ -23,10 +24,10 @@
 \maketitle
 
 \tableofcontents
-\chapter{Sintesi}
-In questa relazione vengono descritte le attività svolte durante il tirocinio riguardanti l'analisi di vulnerabilità web nell'applicazione vulnerabile \textbf{``Juice Shop"}. Vengono illustrate le \textbf{metodologie} utilizzate per identificare e sfruttare le vulnerabilità, nonché le \textbf{contromisure} adottate per mitigare i rischi associati. Si descrive in dettaglio l'uso dei browser DevTools per l'analisi del codice lato client, l'intercettazione delle richieste HTTP con OWASP ZAP e l'invio di richieste API con Postman. Vengono inoltre presentati i risultati ottenuti nell'identificazione di vulnerabilità come XSS, Injection e Broken Access Control, insieme alle raccomandazioni per migliorare la sicurezza dell'applicazione.
+\chapter{Sintesi} 
+In questa relazione vengono descritte le attività svolte durante il tirocinio riguardanti l'analisi di vulnerabilità web nell'applicazione vulnerabile \textbf{``Juice Shop"}. Vengono illustrate le \textbf{metodologie} utilizzate per identificare e sfruttare le vulnerabilità, nonché le \textbf{contromisure} da adottare per mitigare i rischi associati. Si descrive in dettaglio l'uso dei browser DevTools per l'analisi del codice lato client, l'intercettazione delle richieste HTTP con OWASP ZAP e l'invio di richieste API con Postman. Vengono inoltre presentati i risultati ottenuti nell'identificazione di vulnerabilità come XSS, Injection e Broken Access Control, insieme alle raccomandazioni per migliorare la sicurezza dell'applicazione.
 \chapter{Introduzione}
-Le vulnerabilità web sono tra le più comuni e pericolose minacce alla sicurezza informatica. Esse possono essere sfruttate da attaccanti per compromettere la riservatezza, l'integrità e la disponibilità dei dati e dei sistemi. Nel corso del tirocinio sono state studiate ed analizzate diverse vulnerabilità tra cui XSS (Cross-Site Scripting), Injection e Broken Access Control. L'analisi è stata condotta utilizzando come target l'applicazione web OWASP Juice Shop, mentre per gli strument di test sono stati utilizzati OWASP ZAP, Postman e Chrome DevTools.
+Le vulnerabilità web sono tra le più comuni e pericolose minacce alla sicurezza informatica. Esse possono essere sfruttate da attaccanti per compromettere la riservatezza, l'integrità e la disponibilità dei dati e dei sistemi. Nel corso del tirocinio sono state studiate e analizzate diverse vulnerabilità tra cui XSS (Cross-Site Scripting), Injection e Broken Access Control. L'analisi è stata condotta utilizzando come target l'applicazione web OWASP Juice Shop, mentre per gli strumenti di test sono stati utilizzati OWASP ZAP, Postman e Chrome DevTools.
 \par
 Nella fase iniziale si è condotto un lavoro di analisi dell'applicazione per comprendere il suo funzionamento e individuare le aree potenzialmente vulnerabili. Successivamente, sono stati eseguiti test specifici per ogni vulnerabilità, documentando i risultati ottenuti.
 \section{Strumenti utilizzati}
@@ -35,7 +36,7 @@ Il primo è più importante strumento che è stato utilizzato è lo strumento di
 \subsubsection{Console}
 La console registra i messaggi di log, gli errori e gli avvisi generati dalla pagina web. È possibile eseguire comandi JavaScript direttamente nella console per testare il comportamento della pagina. Nell'esecuzione di codice lato cliente può accadere che alcune chiamate API restituiscano errore; visualizzarli in console costituisce un primo sopralluogo dell'applicazione.
 \subsubsection{Elements (Inspector su Firefox)}
-La scheda elementi (figura \ref{fig:chrome-dev-tools-elements} e \ref{fig:api-products-devtools}) mostra l'albero DOM\cite{mdn-dom} della pagina HTML. Consente di ispezionare e modificare gli elementi HTML e i loro stili CSS in tempo reale. Nell'analisi delle vulnerabilità si può trovare utile modificare attributi per consentire operazioni sull'interfaccia grafica (vedi \ref{fig:complaint-form-allowed-extensions}). Inoltre questa visualizzazione consente facilmente di saltare negli \textit{event listener} associati ad un elemento come i bottoni, per analizzare il codice JavaScript e cercare endpoint API.
+La scheda elementi (figura \ref{fig:chrome-dev-tools-elements} e \ref{fig:api-products-devtools}) mostra l'albero DOM\cite{mdn-dom} della pagina HTML. Consente di ispezionare e modificare gli elementi HTML e i loro stili CSS in tempo reale. Nell'analisi delle vulnerabilità si può trovare utile modificare attributi per consentire operazioni sull'interfaccia grafica (vedi \ref{fig:complaint-form-allowed-extensions}). Inoltre questa visualizzazione consente facilmente di saltare negli \textit{event listener} associati a un elemento come i bottoni, per analizzare il codice JavaScript e cercare endpoint API.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/chrome-dev-tools-elements.png}
@@ -43,7 +44,7 @@ La scheda elementi (figura \ref{fig:chrome-dev-tools-elements} e \ref{fig:api-pr
 \label{fig:chrome-dev-tools-elements}
 \end{figure}
 \subsubsection{Sources (Debugger su Firefox)}
-Nella schermata di figura \ref{fig:chrome-dev-tools-sources} si visualizzano i file \texttt{.js} ai quali la pagina fa riferimento. Contiene il codice eseguito lato client.e quindi gli \textit{event listener} accennati nel punto precedente. Si rivela molto utile (soprattutto per siti \textit{React} e \textit{Angular} che sono \textit{JS-heavy}) per la raccolta di informazioni poiché essa contiene chiamate \textit{API} e molto spesso commenti degli sviluppatori o chiavi importanti che consentono il sorpasso delle autorizzazioni (\textbf{privilege escalation}).
+Nella schermata di figura \ref{fig:chrome-dev-tools-sources} si visualizzano i file \texttt{.js} ai quali la pagina fa riferimento. Contiene il codice eseguito lato client e quindi gli \textit{event listener} accennati nel punto precedente. Si rivela molto utile (soprattutto per siti \textit{React} e \textit{Angular} che sono \textit{JS-heavy}) per la raccolta di informazioni poiché essa contiene chiamate \textit{API} e molto spesso commenti degli sviluppatori o chiavi importanti che consentono il sorpasso delle autorizzazioni (\textbf{privilege escalation}).
 \par
 Un altro utilizzo importante è lo \textbf{script overriding}. Abilitando alcune impostazioni e assegnando una cartella si può configurare il sito per eseguire codice \textit{JavaScript} modificato localmente a proprio piacere.
 \begin{figure}[H]
@@ -57,7 +58,7 @@ Le richieste al server e le risposte vengono collocate nella finestra \textit{Ne
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/chrome-dev-tools-network.png}
-\caption{Finestra \textit{Network} con il grafico dei tempi di richesta, la lista di richieste (login evidenziato) e il Payload}
+\caption{Finestra \textit{Network} con il grafico dei tempi di richiesta, la lista di richieste (login evidenziato) e il Payload}
 \label{fig:chrome-dev-tools-network}
 \end{figure}
 \subsubsection{Chrome vs Firefox DevTools}
@@ -118,7 +119,7 @@ Questo ha reso possibile la scoperta dell'email dell'amministratore, di alcuni u
 \par
 Il Cross-Site Scripting viene classificato come una vulnerabilità di tipo Injection, ma viene trattato separatamente per la sua diffusione.
 \section{Descrizione}
-Il Cross-Site Scripting (XSS) è una vulnerabilità web che consente di lanciare script maliziosi sul browser della vittima che accede a un sito leggittimo. Per fare ciò un attaccante può sfruttare diversi metodi tra cui URL manipolati e campi di input non validati.
+Il Cross-Site Scripting (XSS) è una vulnerabilità web che consente di lanciare script maliziosi sul browser della vittima che accede a un sito legittimo. Per fare ciò un attaccante può sfruttare diversi metodi tra cui URL manipolati e campi di input non validati.
 \par
 Gli attacchi XSS possono essere classificati in tre categorie principali:
 \begin{itemize}
@@ -127,7 +128,7 @@ Gli attacchi XSS possono essere classificati in tre categorie principali:
     \item DOM-based XSS: lo script malizioso viene eseguito a causa di modifiche al DOM\cite{mdn-dom} nel browser della vittima, senza fare richiesta al server
 \end{itemize}
 \section{Contromisure}
-Per prevenire gli attachi XSS è necessario sanare e validare tutti i dati in input provenienti dagli utenti, sia URL che form. Le metodologie di sviluppo moderne come i framework web ne consentono la mitigazione implementando misure di sicurezza che automaticamente eseguono la sanificazione. Perciò per comprendere bene le potenziali falle di sicurezza è necessario conoscere accuratamente le chiamate dei framework utilizzati. Inoltre, bisogna prestare attenzione all'utilizzo di funzioni che esegono il \textit{bypass} delle misure di sicurezza come \texttt{bypassSecurityTrust}\cite{angular-domsanitizer} di \textit{Angular}. 
+Per prevenire gli attacchi XSS è necessario sanare e validare tutti i dati in input provenienti dagli utenti, sia URL che form. Le metodologie di sviluppo moderne come i framework web ne consentono la mitigazione implementando misure di sicurezza che automaticamente eseguono la sanificazione. Perciò per comprendere bene le potenziali falle di sicurezza è necessario conoscere accuratamente le chiamate dei framework utilizzati. Inoltre, bisogna prestare attenzione all'utilizzo di funzioni che eseguono il \textit{bypass} delle misure di sicurezza come \texttt{bypassSecurityTrust}\cite{angular-domsanitizer} di \textit{Angular}. 
 \section{DOM XSS} \label{dom-xss}
 La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'utente. Per provare ciò occorre inserire nella barra di ricerca il seguente codice \texttt{<h1>Test<h1>}, eseguire la ricerca e analizzare la pagina modificata (senza interazione con il server) per trovare l'elemento inserito all'interno del DOM. L'immagine \ref{fig:dom-xss-probing} mostra il successo di questo test aprendo la strada per un attacco XSS.
 \begin{figure}[H]
@@ -136,9 +137,9 @@ La pagina iniziale presenta una barra di ricerca che non sanifica l'input dell'u
 \caption{Probing della barra di ricerca con tag \textit{HTML} \texttt{<h1>}. L'\textit{ispeziona elementi} mostra la presenza del tag nell'albero della pagina suggerendo una possibile vulnerabilità.}
 \label{fig:dom-xss-probing}
 \end{figure}
-Escogito un payload diverso che sfrutta questa vulnerabilità per eseguire uno script \textit{JavaScript}, che nella realtà si connetterrebbe a un server controllato dall'attaccante per rubare i dati dell'utente. Immetto nella barra di ricerca il seguente codice: \texttt{<script>alert(xss)</script>}, ma non verifico la sua esecuzione. Ciò è dovuto presumibilmente al fatto che lo standard \textit{HTML5} non consente l'esecuzione di tag \texttt{<script>} inseriti con \textit{innerHTML}\cite{innerHTML}.
+Escogito un payload diverso che sfrutta questa vulnerabilità per eseguire uno script \textit{JavaScript}, che nella realtà si connetterebbe a un server controllato dall'attaccante per rubare i dati dell'utente. Immetto nella barra di ricerca il seguente codice: \texttt{<script>alert(xss)</script>}, ma non verifico la sua esecuzione. Ciò è dovuto presumibilmente al fatto che lo standard \textit{HTML5} non consente l'esecuzione di tag \texttt{<script>} inseriti con \textit{innerHTML}\cite{innerHTML}.
 \par
-Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare codice esterno: \texttt{<iframe src="javascript:alert(`xss`)">}. In questo modo, il codice viene eseguito correttamente come mostrato in figura \ref{fig:dom-xss-result}. Verificando questa vulnerabilità, l'attacante può scegliere di inviare link appositamente creati alle vittime per eseguire codice malevolo nei loro browser da una fonte attendibile come il sito web compromesso. Essendo inoltre una vulnerabilità basata sul DOM, il server non ha modo di rilevare l'attacco.
+Tento un payload alternativo che utilizza il tag \texttt{<iframe>} per caricare codice esterno: \texttt{<iframe src="javascript:alert(`xss`)">}. In questo modo, il codice viene eseguito correttamente come mostrato in figura \ref{fig:dom-xss-result}. Verificando questa vulnerabilità, l'attaccante può scegliere di inviare link appositamente creati alle vittime per eseguire codice malevolo nei loro browser da una fonte attendibile come il sito web compromesso. Essendo inoltre una vulnerabilità basata sul DOM, il server non ha modo di rilevare l'attacco.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/dom-xss-result-small.png}
@@ -155,7 +156,7 @@ I web server utilizzano ampiamente database per memorizzare e recuperare dati. U
     \item[Inferential] La risposta viene dedotta osservando il comportamento del server (ad esempio tempi di risposta diversi)
 \end{description}
 \section{Contromisure}
-Gli attachi Injection si possono prevenire utilizzando le chiamate API sicure offerte dall'interfaccia con il database (al posto di costruire stringhe query dinamicamente), come i \textit{prepared statements} di PHP. È indispensabile inoltre validare correttamente l'input ed eliminare caratteri speciali che potrebbero compromettere la query. 
+Gli attacchi Injection si possono prevenire utilizzando le chiamate API sicure offerte dall'interfaccia con il database (al posto di costruire stringhe query dinamicamente), come i \textit{prepared statements} di PHP. È indispensabile inoltre validare correttamente l'input ed eliminare caratteri speciali che potrebbero compromettere la query. 
 \section{Database Schema}
 Per ottenere lo schema del database l'attenzione è stata posta sulla barra di ricerca dei prodotti. Si è tentato un payload iniziale semplice come \texttt{' OR 1=1--} che però non ha prodotto risultati poiché la ricerca è lato client come visto in \ref{dom-xss}. Occorre perciò intercettare la richiesta API che recupera i prodotti dal database utilizzando \textit{ZAP}. La \ref{fig:api-search-request} mostra che il browser fa richiesta a \texttt{/rest/products/search?q=} per ottenere la lista dei prodotti da visualizzare. Navigando sull'URL se ne può avere conferma. Si sfrutta il parametro \texttt{q} per eseguire lo stesso payload di prima: il riscontro è un errore \texttt{SQLITE\_ERROR: incomplete input}. Questo errore conferisce un duplice risultato: il payload è stato iniettato correttamente nella query SQL e il database utilizzato è \textbf{SQLite}.
 \begin{figure}[H]
@@ -174,7 +175,7 @@ Per poter eseguire ulteriori injection è necessario conoscere la query che vien
 \par
 Dalla query possiamo capire il meccanismo di sostituzione del parametro \texttt{q} che viene iniettato e costruire il payload partendo con i caratteri \texttt{'))}. Essendo una query di selezione, sarà necessario appendere l'operatore \texttt{UNION} per ottenere il risultato della injection dentro la risposta del \texttt{SELECT}\cite{injection-union-attack}.
 \par
-Il passo successivo è quello di scoprire le tabelle del database. Ricercando su internet si trova che la query per ottenere i nomi delle tabelle in SQLite è: \texttt{SELECT sql FROM sqlite\_schema}\cite{sqlite-schema-query}. Ricomponendo i payload precedentemente descritti, il payload finale diventa: \texttt{')) UNION SELECT sql FROM sqlite\_master--}. Ora però si tenta di esegurilo via browser, ma il server restituisce l'errore illustrato in figura \ref{fig:api-search-schema-fail}.
+Il passo successivo è quello di scoprire le tabelle del database. Ricercando su internet si trova che la query per ottenere i nomi delle tabelle in SQLite è: \texttt{SELECT sql FROM sqlite\_schema}\cite{sqlite-schema-query}. Ricomponendo i payload precedentemente descritti, il payload finale diventa: \texttt{')) UNION SELECT sql FROM sqlite\_master--}. Ora però si tenta di eseguirlo via browser, ma il server restituisce l'errore illustrato in figura \ref{fig:api-search-schema-fail}.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/api-search-schema-fail.png}
@@ -223,7 +224,7 @@ Dopo aver eseguito il login con un account personale è possibile vedere il link
 \caption{Form di invio reclami con campo di caricamento file.}
 \label{fig:complaint-form}
 \end{figure}
-Premendo su \texttt{Sfoglia...} si apre l'esplora file del sistema operativo che consente di allegare i file. Su \textit{Windows} la finestra esplora file consente di filtrare le estensioni consentite nel menù a scelta in basso a destra. Tuttavia, è possibile visualizzare le stesse nel \textit{HTML} della pagina con l'ispeziona elementi. L'attributo \textit{accept} della figura \ref{fig:complaint-form-allowed-extensions} mostra le estensioni consentite \texttt{.pdf} e \texttt{.zip} lato client. Ovviamente, essendo solo un controllo locale, è possible che questo non venga effettuato sul server.
+Premendo su \texttt{Sfoglia...} si apre l'esplora file del sistema operativo che consente di allegare i file. Su \textit{Windows} la finestra esplora file consente di filtrare le estensioni consentite nel menù a scelta in basso a destra. Tuttavia, è possibile visualizzare le stesse nel \textit{HTML} della pagina con l'ispeziona elementi. L'attributo \textit{accept} della figura \ref{fig:complaint-form-allowed-extensions} mostra le estensioni consentite \texttt{.pdf} e \texttt{.zip} lato client. Ovviamente, essendo solo un controllo locale, è possibile che questo non venga effettuato sul server.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/complaint-form-allowed-extensions.png}
